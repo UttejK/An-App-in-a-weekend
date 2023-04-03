@@ -1,13 +1,4 @@
-const CATEGORIES = [
-  { name: "technology", color: "#3b82f6" },
-  { name: "science", color: "#16a34a" },
-  { name: "finance", color: "#ef4444" },
-  { name: "society", color: "#eab308" },
-  { name: "entertainment", color: "#db2777" },
-  { name: "health", color: "#14b8a6" },
-  { name: "history", color: "#f97316" },
-  { name: "news", color: "#8b5cf6" },
-];
+import { useState } from "react";
 
 const initialFacts = [
   {
@@ -43,43 +34,160 @@ const initialFacts = [
   },
 ];
 
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <span style={{ fontSize: "40px" }}>{count}</span>
+      <button className="btn btn-large" onClick={() => setCount((c) => c + 1)}>
+        +1
+      </button>
+    </div>
+  );
+}
+
 function App() {
-  const AppTitle = "Today I Learned!";
+  const [showForm, setShowForm] = useState(false);
+  const [facts, setFacts] = useState(initialFacts);
+
   return (
     <>
-      <header className="header">
-        <div className="logo">
-          <img src="/logo.png" alt="Today I Learned - Logo" />
-          <h1>{AppTitle}</h1>
-        </div>
-        <button className="btn btn-large btn-open" type="button">
-          Share a fact
-        </button>
-      </header>
-      <NewFactForm />
+      <Header showForm={showForm} setShowForm={setShowForm} />
+      {showForm ? <NewFactForm /> : null}
       <main className="main">
         <CategoryFilter />
-        <FactList />
+        <FactList facts={facts} />
       </main>
     </>
   );
 }
 
-function NewFactForm() {
+function Header({ showForm, setShowForm }) {
+  const AppTitle = "Today I Learned!";
+
   return (
-    <form action="" className="fact-form">
-      fact form
+    <header className="header">
+      <div className="logo">
+        <img src="/logo.png" alt="Today I Learned - Logo" />
+        <h1>{AppTitle}</h1>
+      </div>
+      <button
+        className="btn btn-large btn-open"
+        type="button"
+        onClick={() => setShowForm((show) => !showForm)}
+      >
+        {showForm ? "Close" : "Share a fact"}
+      </button>
+    </header>
+  );
+}
+
+const CATEGORIES = [
+  { name: "technology", color: "#3b82f6" },
+  { name: "science", color: "#16a34a" },
+  { name: "finance", color: "#ef4444" },
+  { name: "society", color: "#eab308" },
+  { name: "entertainment", color: "#db2777" },
+  { name: "health", color: "#14b8a6" },
+  { name: "history", color: "#f97316" },
+  { name: "news", color: "#8b5cf6" },
+];
+
+function NewFactForm() {
+  const [text, setText] = useState("");
+  const [source, setSource] = useState("");
+  const [category, setCategory] = useState("");
+  const textLength = text.length;
+
+  function isValidHttpUrl(string) {
+    let url;
+    try {
+      url = new URL(string);
+    } catch (_) {
+      return false;
+    }
+    return url.protocol === "http:" || url.protocol === "https:";
+  }
+
+  function handleSubmit(e) {
+    // 1. prevent the browser reload
+    e.preventDefault();
+    // 2. check if the data is valid & if so create a new fact
+    if (text && isValidHttpUrl(source) && category && textLength <= 200) {
+    }
+    // 3. Create a new fact object
+    const newFact = {
+      id: Math.round(Math.random() * 1000),
+      text,
+      source,
+      category,
+      votesInteresting: 11,
+      votesMindblowing: 2,
+      votesFalse: 0,
+      createdIn: new Date().getCurrentYear(),
+    };
+    // 4. Add the new fact to the UI: add the fact to the state
+
+    // 5. Reset the input fields
+
+    // 6. Close the form
+  }
+
+  return (
+    <form action="" className="fact-form" onSubmit={handleSubmit}>
+      <input
+        type="text"
+        placeholder="Share a fact with the world..."
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <span className="char__count">{200 - textLength}</span>
+      <input
+        value={source}
+        type="text"
+        placeholder="Trust worth source..."
+        onChange={(e) => setSource(e.target.value)}
+      />
+      <select value={category} onChange={(e) => setCategory(e.target.value)}>
+        <option value="">Choose Category</option>
+        {CATEGORIES.map((cat) => (
+          <option key={cat.name} value={cat.name}>
+            {cat.name.toUpperCase()}
+          </option>
+        ))}
+      </select>
+      <button className="btn btn-large" type="submit">
+        Post
+      </button>
     </form>
   );
 }
 
 function CategoryFilter() {
-  return <aside>Category filter</aside>;
+  return (
+    <aside>
+      <ul>
+        <li>
+          <button className="btn btn-all-categories">ALL</button>
+        </li>
+        {CATEGORIES.map((cat) => (
+          <li key={cat.name} className="category">
+            <button
+              className="btn btn-category"
+              style={{ backgroundColor: cat.color }}
+            >
+              {cat.name}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </aside>
+  );
 }
 
-function FactList() {
+function FactList({ facts }) {
   // Temporary list
-  const facts = initialFacts;
   return (
     <section>
       <ul className="facts-list">

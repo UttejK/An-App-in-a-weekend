@@ -1,6 +1,0 @@
-<li><button>FINANCE</button></li>
-        <li><button>SOCIETY</button></li>
-        <li><button>ENTERTAINMENT</button></li>
-        <li><button>HEALTH</button></li>
-        <li><button>HISTORY</button></li>
-        <li><button>NEWS</button></li>

@@ -66,9 +66,9 @@ async function loadFacts() {
       },
     }
   );
-  const data = await res.json();
+  const recData = await res.json();
 
-  createFactsList(data);
+  createFactsList(recData);
 }
 
 //create the facts

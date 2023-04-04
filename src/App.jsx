@@ -278,11 +278,14 @@ function Fact({ fact, setFacts }) {
 
   async function handleVote(columnName) {
     setIsUpdating(true);
-    const { data: updatedFact, error } = await supabase
-      .from("Facts")
-      .update({ [columnName]: fact[columnName] + 1 })
-      .eq("id", fact.id)
-      .select();
+    const { data: updatedFact, error } = await supabase;
+    const isDisputed =
+      fact.votesInteresting + fact.votesMindblowing <
+      fact.votesFalse
+        .from("Facts")
+        .update({ [columnName]: fact[columnName] + 1 })
+        .eq("id", fact.id)
+        .select();
     setIsUpdating(false);
     if (!error)
       setFacts((facts) =>
@@ -292,6 +295,7 @@ function Fact({ fact, setFacts }) {
   return (
     <li className="fact">
       <p>
+        {/* {isDisputed ? <span className="disputed">[DISPUTED] </span> : null} */}
         {fact.text}
         <a className="source" rel="noopener" href={fact.source} target="_blank">
           (Source)

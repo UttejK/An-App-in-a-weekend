@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import supabase from "./supabase";
 
 const initialFacts = [
   {
@@ -49,18 +50,33 @@ function Counter() {
 
 function App() {
   const [showForm, setShowForm] = useState(false);
-  const [facts, setFacts] = useState(initialFacts);
+  const [facts, setFacts] = useState([]);
 
+  useEffect(function () {
+    async function getFacts() {
+      const { data: Facts, error } = await supabase.from("Facts").select("*");
+      setFacts(Facts);
+    }
+    getFacts();
+  }, []);
+
+  const [isLoading, setIsLoading] = useState(false);
   return (
     <>
       <Header showForm={showForm} setShowForm={setShowForm} />
-      {showForm ? <NewFactForm /> : null}
+      {showForm ? (
+        <NewFactForm setFacts={setFacts} setShowForm={setShowForm} />
+      ) : null}
       <main className="main">
         <CategoryFilter />
         <FactList facts={facts} />
       </main>
     </>
   );
+}
+
+function Loader() {
+  return <p></p>;
 }
 
 function Header({ showForm, setShowForm }) {
@@ -93,22 +109,21 @@ const CATEGORIES = [
   { name: "history", color: "#f97316" },
   { name: "news", color: "#8b5cf6" },
 ];
+function isValidHttpUrl(string) {
+  let url;
+  try {
+    url = new URL(string);
+  } catch (_) {
+    return false;
+  }
+  return url.protocol === "http:" || url.protocol === "https:";
+}
 
-function NewFactForm() {
+function NewFactForm({ setFacts, setShowForm }) {
   const [text, setText] = useState("");
   const [source, setSource] = useState("");
   const [category, setCategory] = useState("");
   const textLength = text.length;
-
-  function isValidHttpUrl(string) {
-    let url;
-    try {
-      url = new URL(string);
-    } catch (_) {
-      return false;
-    }
-    return url.protocol === "http:" || url.protocol === "https:";
-  }
 
   function handleSubmit(e) {
     // 1. prevent the browser reload
@@ -125,13 +140,16 @@ function NewFactForm() {
       votesInteresting: 11,
       votesMindblowing: 2,
       votesFalse: 0,
-      createdIn: new Date().getCurrentYear(),
+      createdIn: new Date().getFullYear(),
     };
     // 4. Add the new fact to the UI: add the fact to the state
-
+    setFacts((facts) => [newFact, ...facts]);
     // 5. Reset the input fields
-
+    setText("");
+    setSource("");
+    setCategory("");
     // 6. Close the form
+    setShowForm(false);
   }
 
   return (
